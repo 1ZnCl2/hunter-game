@@ -1,0 +1,16 @@
+name: HunterEvent
+main: hunter.papermc.testplugin.Hunter
+version: 1.0
+api-version: 1.20
+
+commands:
+  team:
+    description: 플레이어를 팀에 배정합니다
+    usage: /team <blue|red> <player>
+    permission: team.assign
+
+  teamlist:
+    description: 현재 팀 명단을 확인합니다.
+    usage: /teamlist
+
+    
