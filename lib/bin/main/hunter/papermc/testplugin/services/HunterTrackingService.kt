@@ -6,6 +6,9 @@ import org.bukkit.entity.Player
 class HunterTrackingService {
     private val trackingPlayers = mutableSetOf<Player>()
     private val trackedTargets = mutableMapOf<Player, Player>()
+    private val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+    val online = Bukkit.getOnlinePlayers().toList()
+    private val teamMembers = mutableMapOf<TeamType, MutableSet<UUID>>()
 
     fun isTracking(player: Player): Boolean =
         trackingPlayers.contains(player)
@@ -18,22 +21,34 @@ class HunterTrackingService {
 
     fun getTrackingPlayers(): Set<Player> = trackingPlayers
 
-    fun getNearestEnemy(hunter: Player): Player? {
-        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
-        val hunterTeam = scoreboard.getEntryTeam(hunter.name) ?: return null
-        val hunterWorld = hunter.world
+    fun getNearestEnemy(
+    hunter: Player,
+    teamService: TeamService
+    ): Player? {
 
-        return Bukkit.getOnlinePlayers()
-            .asSequence()
-            .filter { it != hunter }
-            .filter { it.world == hunterWorld }
-            .filter { target ->
-                val targetTeam = scoreboard.getEntryTeam(target.name)
-                targetTeam != null && targetTeam != hunterTeam
+    val hunterTeam = teamService.getTeam(hunter) ?: return null
+    val enemyTeams = TeamType.values().filter { it != hunterTeam }
+
+    val hunterLoc = hunter.location
+    var nearest: Player? = null
+    var minDist = Double.MAX_VALUE
+
+    for (team in enemyTeams) {
+        for (uuid in teamService.getTeamMembers(team)) {
+            val target = Bukkit.getPlayer(uuid) ?: continue
+            if (target.world != hunter.world) continue
+
+            val dist = target.location.distanceSquared(hunterLoc)
+            if (dist < minDist) {
+                minDist = dist
+                nearest = target
             }
-            .minByOrNull { target ->
-                target.location.distanceSquared(hunter.location)
-            }
+        }
+    }
+
+    return nearest
+}
+
     }
 
     fun updateCompassTarget(hunter: Player, target: Player) {

@@ -37,12 +37,28 @@ class TeamService(
     fun getTeam(uuid: UUID): TeamType? =
         teamMap[uuid]
 
+    fun getTeamMembers(team: TeamType): Set<UUID> =
+    teamMembers[team] ?: emptySet()
+
     fun assign(player: Player, team: TeamType) {
-        teamMap[player.uniqueId] = team
+        val uuid = player.uniqueId
+
+        // 기존 팀 제거
+        teamMap[uuid]?.let { oldTeam ->
+            teamMembers[oldTeam]?.remove(uuid)
+        }
+
+        // 새 팀 등록
+        teamMap[uuid] = team
+        teamMembers.getOrPut(team) { mutableSetOf() }.add(uuid)
     }
 
     fun remove(player: Player) {
-        teamMap.remove(player.uniqueId)
+        val uuid = player.uniqueId
+        teamMap[uuid]?.let { team ->
+            teamMembers[team]?.remove(uuid)
+        }
+        teamMap.remove(uuid)
     }
 
     private fun loadTeams() {

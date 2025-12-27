@@ -1,3 +1,5 @@
+
+/*
 package hunter.papermc.testplugin
 
 import org.bukkit.Bukkit
@@ -43,3 +45,4 @@ object TeamManage : Listener {
         }
     }
 }
+*/
