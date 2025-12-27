@@ -49,11 +49,11 @@ tasks {
 tasks.register<Copy>("copyToServer") {
     dependsOn(tasks.shadowJar)
     from(tasks.shadowJar.get().archiveFile)
-    into("C:/Users/Jo Ayeon/OneDrive/바탕 화면/hunter/plugins")
+    into("D:hunter-server/plugins")
 }
 
 tasks.processResources {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE // ✅ 여기 추가
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 sourceSets {
