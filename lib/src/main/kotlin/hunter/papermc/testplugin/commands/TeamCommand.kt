@@ -1,7 +1,8 @@
 package hunter.papermc.testplugin.commands
 
 import hunter.papermc.testplugin.services.TeamService
-import hunter.papermc.testplugin.services.TeamType
+import hunter.papermc.testplugin.components.TeamType
+
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
@@ -19,14 +20,14 @@ class TeamCommand(
     ): Boolean {
 
         if (args.size != 2) {
-            sender.sendMessage("§c사용법: /team <red|blue> <player>")
+            sender.sendMessage("§c사용법: /team <yellow|blue> <player>")
             return true
         }
 
         val team = runCatching {
             TeamType.valueOf(args[0].uppercase())
         }.getOrNull() ?: run {
-            sender.sendMessage("§c존재하지 않는 팀입니다. (red / blue)")
+            sender.sendMessage("§c존재하지 않는 팀입니다. (yellow / blue)")
             return true
         }
 

@@ -14,7 +14,7 @@ class HunterTrackingSchedulers(
 
             if (!target.isOnline) {
                 hunter.sendActionBar(
-                    Component.text("§7추적 대상이 같은 차원에 없습니다")
+                    Component.text("§7추적할 대상이 없습니다!")
                 )
                 return@forEach
             }

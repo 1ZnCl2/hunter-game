@@ -47,12 +47,16 @@ class Hunter : JavaPlugin(), Listener {
             playerStateService
         )
 
+        // 스케줄러
+        val trackingSchedulers = HunterTrackingSchedulers(trackingService)
+        // trackingSchedulers.runTaskTimer(this, 0L, 1200L) // 1분 간격
+
         // 리스너
         server.pluginManager.registerEvents(
             HunterCraftListener(switchHunterUseCase), this
         )
         server.pluginManager.registerEvents(
-            HunterUsingListener(trackingService), this
+            HunterUsingListener(playerStateService, trackingSchedulers), this
         )
 
         // 커맨드
@@ -62,10 +66,6 @@ class Hunter : JavaPlugin(), Listener {
         getCommand("teamlist")?.setExecutor(
             TeamListCommand(teamService)
         )
-
-        // 스케줄러
-        HunterTrackingSchedulers(trackingService)
-            .runTaskTimer(this, 20L, 1200L)
     }
 
     @EventHandler

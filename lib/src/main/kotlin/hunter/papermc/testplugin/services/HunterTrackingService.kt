@@ -1,5 +1,8 @@
 package hunter.papermc.testplugin.services
 
+import hunter.papermc.testplugin.components.TeamType
+import hunter.papermc.testplugin.services.TeamService
+
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.UUID
@@ -32,8 +35,8 @@ class HunterTrackingService(
     var minDist = Double.MAX_VALUE
 
     for (team in enemyTeams) {
-        for (uuid in teamService.getTeamMembers(team)) {
-            val target = Bukkit.getPlayer(uuid as UUID) ?: continue
+        for (uuid: UUID in teamService.getTeamMembers(team)) {
+            val target = Bukkit.getPlayer(uuid) ?: continue
             if (target.world != hunter.world) continue
 
             val dist = target.location.distanceSquared(hunterLoc)

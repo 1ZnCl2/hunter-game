@@ -1,5 +1,7 @@
 package hunter.papermc.testplugin.services
 
+import hunter.papermc.testplugin.components.TeamType
+
 import org.bukkit.entity.Player
 import org.bukkit.scoreboard.Scoreboard
 import org.bukkit.Bukkit
@@ -8,11 +10,6 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import java.util.UUID
-
-enum class TeamType {
-    YELLOW,
-    BLUE
-}
 
 class TeamService(
     private val plugin: JavaPlugin,

@@ -1,17 +1,12 @@
 package hunter.papermc.testplugin.services
 
+import hunter.papermc.testplugin.components.PlayerState
+
 import org.bukkit.entity.Player
 import java.util.UUID
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
-
-enum class PlayerState {
-    NORMAL,
-    HUNTER,
-    PREY,
-    DEAD
-}
 
 class PlayerStateService(
     private val plugin: JavaPlugin
@@ -47,6 +42,10 @@ class PlayerStateService(
 
             stateMap[UUID.fromString(uuidStr)] = state
         }
+    }
+
+    fun resetAllStates() {
+        stateMap.clear()
     }
 
     fun saveStates() {

@@ -1,6 +1,10 @@
 package hunter.papermc.testplugin.listeners
 
+import hunter.papermc.testplugin.components.PlayerState
 import hunter.papermc.testplugin.services.HunterTrackingService
+import hunter.papermc.testplugin.components.TeamType
+
+import hunter.papermc.testplugin.services.PlayerStateService
 import hunter.papermc.testplugin.schedulers.HunterTrackingSchedulers
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
@@ -9,7 +13,8 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 
 class HunterUsingListener(
-    private val service: HunterTrackingService
+    private val playerStateService: PlayerStateService,
+    private val trackingSchedulers: HunterTrackingSchedulers
 ) : Listener {
 
     @EventHandler
@@ -22,8 +27,8 @@ class HunterUsingListener(
         if (!meta.hasCustomModelData() || meta.customModelData != 1001) return
         if (event.action !in listOf(Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK)) return
 
-        if (service.startTracking(player)) {
-            player.sendTitle("", "§a상대를 추적합니다...", 10, 60, 10)
+        if (playerStateService.getState(player) == PlayerState.HUNTER) {
+            trackingSchedulers.run()
         } else {
             player.sendTitle("", "§c당신은 술래가 아닙니다.", 10, 60, 10)
         }

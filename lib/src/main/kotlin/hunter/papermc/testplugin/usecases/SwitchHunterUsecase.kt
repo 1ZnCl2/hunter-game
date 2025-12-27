@@ -1,8 +1,11 @@
 package hunter.papermc.testplugin.usecases
 
-import hunter.papermc.testplugin.services.PlayerStateService
 import hunter.papermc.testplugin.services.TeamService
-import hunter.papermc.testplugin.services.PlayerState
+import hunter.papermc.testplugin.services.HunterTrackingService
+import hunter.papermc.testplugin.components.TeamType
+import hunter.papermc.testplugin.components.PlayerState
+import hunter.papermc.testplugin.services.PlayerStateService
+
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
@@ -14,6 +17,7 @@ class SwitchHunterUseCase(
         val hunterTeam = teamService.getTeam(hunter)
             ?: return
 
+        playerStateService.resetAllStates()
         playerStateService.setState(hunter, PlayerState.HUNTER)
 
         Bukkit.getOnlinePlayers().forEach { player ->

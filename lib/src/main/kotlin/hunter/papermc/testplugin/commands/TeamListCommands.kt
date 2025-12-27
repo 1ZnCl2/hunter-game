@@ -1,5 +1,7 @@
 package hunter.papermc.testplugin.commands
 
+import hunter.papermc.testplugin.components.TeamType
+
 import hunter.papermc.testplugin.services.TeamService
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
