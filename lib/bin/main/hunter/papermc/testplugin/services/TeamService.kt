@@ -1,12 +1,13 @@
 package hunter.papermc.testplugin.services
 
 import org.bukkit.entity.Player
-import java.util.UUID
+import org.bukkit.scoreboard.Scoreboard
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
+import java.util.UUID
 
 enum class TeamType {
     YELLOW,
@@ -14,9 +15,11 @@ enum class TeamType {
 }
 
 class TeamService(
-    private val plugin: JavaPlugin
+    private val plugin: JavaPlugin,
+    private val scoreboard: Scoreboard
 ) {
     private val teamMap = mutableMapOf<UUID, TeamType>()
+    private val teamMembers = mutableMapOf<TeamType, MutableSet<UUID>>()
 
     private val file = File(plugin.dataFolder, "team-state.yml")
     private val config = YamlConfiguration()

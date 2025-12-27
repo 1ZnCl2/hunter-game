@@ -11,7 +11,6 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.Sound
 import org.bukkit.Location
 import kotlin.random.Random
-import hunter.papermc.testplugin.TeamManage
 import hunter.papermc.testplugin.services.SwitchHunterService
 import hunter.papermc.testplugin.services.HunterTrackingService
 

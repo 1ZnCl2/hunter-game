@@ -29,11 +29,11 @@ class Hunter : JavaPlugin(), Listener {
     override fun onEnable() {
         logger.info("Hunter Plugin is Activated")
         Bukkit.getPluginManager().registerEvents(this, this)
-        TeamManage.setupTeam()
 
         // 서비스
-        val teamService = TeamService(this)
-        val trackingService = HunterTrackingService()
+        val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+        val teamService = TeamService(this, scoreboard)
+        val trackingService = HunterTrackingService(teamService)
 
         // 레시피
         HunterItemRecipes.register(this)

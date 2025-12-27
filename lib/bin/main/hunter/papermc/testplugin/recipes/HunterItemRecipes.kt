@@ -12,6 +12,7 @@ object HunterItemRecipes {
         val meta = item.itemMeta
         meta.setDisplayName("§c술래 아이템")
         meta.lore = listOf("§7술래의 증표. 1분 간격으로 상대 팀의 방향을 보여줍니다.")
+        meta.setCustomModelData(1001)
         item.itemMeta = meta
 
         val key = NamespacedKey(plugin, "hunter_switch_item")

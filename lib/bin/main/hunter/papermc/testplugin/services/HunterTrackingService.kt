@@ -2,13 +2,12 @@ package hunter.papermc.testplugin.services
 
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import java.util.UUID
 
-class HunterTrackingService {
+class HunterTrackingService(
+    private val teamService: TeamService
+) {
     private val trackingPlayers = mutableSetOf<Player>()
-    private val trackedTargets = mutableMapOf<Player, Player>()
-    private val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
-    val online = Bukkit.getOnlinePlayers().toList()
-    private val teamMembers = mutableMapOf<TeamType, MutableSet<UUID>>()
 
     fun isTracking(player: Player): Boolean =
         trackingPlayers.contains(player)
@@ -23,7 +22,6 @@ class HunterTrackingService {
 
     fun getNearestEnemy(
     hunter: Player,
-    teamService: TeamService
     ): Player? {
 
     val hunterTeam = teamService.getTeam(hunter) ?: return null
@@ -35,21 +33,19 @@ class HunterTrackingService {
 
     for (team in enemyTeams) {
         for (uuid in teamService.getTeamMembers(team)) {
-            val target = Bukkit.getPlayer(uuid) ?: continue
+            val target = Bukkit.getPlayer(uuid as UUID) ?: continue
             if (target.world != hunter.world) continue
 
             val dist = target.location.distanceSquared(hunterLoc)
             if (dist < minDist) {
-                minDist = dist
+                    minDist = dist
                 nearest = target
             }
         }
     }
-
-    return nearest
-}
-
+        return nearest
     }
+
 
     fun updateCompassTarget(hunter: Player, target: Player) {
         hunter.compassTarget = target.location
@@ -57,6 +53,5 @@ class HunterTrackingService {
 
     fun stopTracking(player: Player) {
         trackingPlayers.remove(player)
-        trackedTargets.remove(player)
     }
 }
