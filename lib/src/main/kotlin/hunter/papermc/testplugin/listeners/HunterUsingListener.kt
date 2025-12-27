@@ -23,9 +23,9 @@ class HunterUsingListener(
         if (event.action !in listOf(Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK)) return
 
         if (service.startTracking(player)) {
-            player.sendTitle("§a상대를 추적합니다...", "", 10, 60, 10)
+            player.sendTitle("", "§a상대를 추적합니다...", 10, 60, 10)
         } else {
-            player.sendTitle("§c당신은 술래가 아닙니다.", "", 10, 60, 10)
+            player.sendTitle("", "§c당신은 술래가 아닙니다.", 10, 60, 10)
         }
     }
 }
