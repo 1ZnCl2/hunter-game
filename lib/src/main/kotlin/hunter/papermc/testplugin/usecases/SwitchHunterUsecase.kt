@@ -32,5 +32,7 @@ class SwitchHunterUseCase(
                 playerStateService.setState(player, PlayerState.PREY)
             }
         }
+
+        switchHunterService.switchHunter(hunter)
     }
 }
