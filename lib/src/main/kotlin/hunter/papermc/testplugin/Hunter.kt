@@ -28,15 +28,18 @@ import org.bukkit.inventory.ShapedRecipe
 
 class Hunter : JavaPlugin(), Listener {
 
+    private lateinit var teamService: TeamService
+
     override fun onEnable() {
         logger.info("Hunter Plugin is Activated")
         Bukkit.getPluginManager().registerEvents(this, this)
 
         // 서비스
         val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
-        val teamService = TeamService(this, scoreboard)
+        teamService = TeamService(this, scoreboard)
         val trackingService = HunterTrackingService(teamService)
         val playerStateService = PlayerStateService(this)
+        val switchHunterService = SwitchHunterService()
 
         // 레시피
         HunterItemRecipes.register(this)
@@ -44,7 +47,8 @@ class Hunter : JavaPlugin(), Listener {
         // usecase (이건 한국어로 뭐라고 해야 할까...?)
             val switchHunterUseCase = SwitchHunterUseCase(
             teamService,
-            playerStateService
+            playerStateService,
+            switchHunterService
         )
 
         // 스케줄러
@@ -71,6 +75,8 @@ class Hunter : JavaPlugin(), Listener {
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
         event.player.sendMessage(Component.text("Hello, ${event.player.name}!"))
+        // 저장된 팀이 있으면 스코어보드에 적용
+        teamService.applyTeamToPlayer(event.player)
     }
 
     /* private fun registerHunterRecipe() {
