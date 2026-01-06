@@ -8,7 +8,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
-class HunterTrackingUseCase(
+class HunterTrackingUsecase(
     private val trackingService: HunterTrackingService,
     private val playerStateService: PlayerStateService,
     private val teamService: TeamService
