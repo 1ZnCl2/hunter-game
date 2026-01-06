@@ -66,7 +66,7 @@ class TeamService(
         // 팀 색상 설정
         val teamColor = when (team) {
             TeamType.YELLOW -> ChatColor.YELLOW
-            TeamType.BLUE -> ChatColor.CYAN
+            TeamType.BLUE -> ChatColor.AQUA
         }
         scoreboardTeam.color = teamColor
         

@@ -11,14 +11,12 @@ import org.bukkit.command.CommandSender
 class TeamCommand(
     private val teamService: TeamService
 ) : CommandExecutor {
-
     override fun onCommand(
         sender: CommandSender,
         command: Command,
         label: String,
         args: Array<out String>
     ): Boolean {
-
         if (args.size != 2) {
             sender.sendMessage("§c사용법: /team <yellow|blue> <player>")
             return true
@@ -27,7 +25,7 @@ class TeamCommand(
         val team = runCatching {
             TeamType.valueOf(args[0].uppercase())
         }.getOrNull() ?: run {
-            sender.sendMessage("§c존재하지 않는 팀입니다. (yellow / blue)")
+            sender.sendMessage("§c존재하지 않는 팀입니다. (yellow / blue)로 배정해 주세요.")
             return true
         }
 

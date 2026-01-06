@@ -3,6 +3,7 @@ import hunter.papermc.testplugin.commands.TeamCommand
 import hunter.papermc.testplugin.commands.TeamListCommand
 import hunter.papermc.testplugin.listeners.HunterCraftListener
 import hunter.papermc.testplugin.listeners.HunterUsingListener
+import hunter.papermc.testplugin.listeners.PlayerLifecycleListener
 import hunter.papermc.testplugin.recipes.HunterItemRecipes
 import hunter.papermc.testplugin.services.HunterTrackingService
 import hunter.papermc.testplugin.services.TeamService
@@ -10,6 +11,7 @@ import hunter.papermc.testplugin.services.SwitchHunterService
 import hunter.papermc.testplugin.services.PlayerStateService
 import hunter.papermc.testplugin.schedulers.HunterTrackingSchedulers
 import hunter.papermc.testplugin.usecases.SwitchHunterUseCase
+import hunter.papermc.testplugin.usecases.HunterTrackingUseCase
 
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
@@ -44,23 +46,33 @@ class Hunter : JavaPlugin(), Listener {
         // 레시피
         HunterItemRecipes.register(this)
         
-        // usecase (이건 한국어로 뭐라고 해야 할까...?)
-            val switchHunterUseCase = SwitchHunterUseCase(
+        // UseCase 생성
+        val trackingUseCase = HunterTrackingUseCase(
+            trackingService,
+            playerStateService,
+            teamService
+        )
+        
+        val switchHunterUseCase = SwitchHunterUseCase(
             teamService,
             playerStateService,
-            switchHunterService
+            switchHunterService,
+            trackingUseCase
         )
 
-        // 스케줄러
-        val trackingSchedulers = HunterTrackingSchedulers(trackingService)
-        // trackingSchedulers.runTaskTimer(this, 0L, 1200L) // 1분 간격
+        // 스케줄러 (20틱 = 1초마다 업데이트)
+        val trackingSchedulers = HunterTrackingSchedulers(trackingUseCase)
+        trackingSchedulers.runTaskTimer(this, 0L, 20L) // 1초 간격
 
         // 리스너
         server.pluginManager.registerEvents(
             HunterCraftListener(switchHunterUseCase), this
         )
         server.pluginManager.registerEvents(
-            HunterUsingListener(playerStateService, trackingSchedulers), this
+            HunterUsingListener(playerStateService, trackingUseCase), this
+        )
+        server.pluginManager.registerEvents(
+            PlayerLifecycleListener(trackingUseCase), this
         )
 
         // 커맨드

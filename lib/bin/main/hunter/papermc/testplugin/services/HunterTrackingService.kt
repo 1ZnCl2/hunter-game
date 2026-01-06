@@ -10,51 +10,76 @@ import java.util.UUID
 class HunterTrackingService(
     private val teamService: TeamService
 ) {
-    private val trackingPlayers = mutableSetOf<Player>()
+    private val trackingPlayers = mutableSetOf<UUID>()
 
     fun isTracking(player: Player): Boolean =
-        trackingPlayers.contains(player)
+        trackingPlayers.contains(player.uniqueId)
 
-    fun startTracking(player: Player): Boolean {
-        if (trackingPlayers.contains(player)) return false
-        trackingPlayers.add(player)
+    fun isTracking(uuid: UUID): Boolean =
+        trackingPlayers.contains(uuid)
+
+        fun startTracking(player: Player): Boolean {
+        if (trackingPlayers.contains(player.uniqueId)) return false
+        trackingPlayers.add(player.uniqueId)
         return true
     }
 
-    fun getTrackingPlayers(): Set<Player> = trackingPlayers
 
-    fun getNearestEnemy(
-    hunter: Player,
-    ): Player? {
+    fun stopTracking(player: Player) {
+        trackingPlayers.remove(player.uniqueId)
+    }
 
-    val hunterTeam = teamService.getTeam(hunter) ?: return null
-    val enemyTeams = TeamType.values().filter { it != hunterTeam }
+    fun stopTracking(uuid: UUID) {
+        trackingPlayers.remove(uuid)
+    }
 
-    val hunterLoc = hunter.location
-    var nearest: Player? = null
-    var minDist = Double.MAX_VALUE
+    fun stopAllTracking() {
+        trackingPlayers.clear()
+    }
 
-    for (team in enemyTeams) {
-        for (uuid: UUID in teamService.getTeamMembers(team)) {
-            val target = Bukkit.getPlayer(uuid) ?: continue
-            if (target.world != hunter.world) continue
+    fun getTrackingPlayerUUIDs(): Set<UUID> = trackingPlayers.toSet()
 
-            val dist = target.location.distanceSquared(hunterLoc)
-            if (dist < minDist) {
+    fun getTrackingPlayers(): Set<Player> =
+        trackingPlayers.mapNotNull { uuid -> Bukkit.getPlayer(uuid) }.toSet()
+
+    fun getNearestEnemy(hunter: Player): Player? {
+        val hunterTeam = teamService.getTeam(hunter) ?: return null
+        val enemyTeams = TeamType.values().filter { it != hunterTeam }
+
+        val hunterLoc = hunter.location
+        var nearest: Player? = null
+        var minDist = Double.MAX_VALUE
+
+        for (team in enemyTeams) {
+            for (uuid: UUID in teamService.getTeamMembers(team)) {
+                val target = Bukkit.getPlayer(uuid) ?: continue
+                // 같은 월드에 있는지 확인
+                if (target.world != hunter.world) continue
+                // 플레이어가 온라인이고 살아있는지 확인
+                if (!target.isOnline || target.isDead) continue
+
+                val dist = target.location.distanceSquared(hunterLoc)
+                if (dist < minDist) {
                     minDist = dist
-                nearest = target
+                    nearest = target
+                }
             }
         }
-    }
         return nearest
     }
 
-
-    fun updateCompassTarget(hunter: Player, target: Player) {
-        hunter.compassTarget = target.location
+    fun getDistanceToTarget(hunter: Player, target: Player?): Int? {
+        if (target == null) return null
+        if (hunter.world != target.world) return null
+        return hunter.location.distance(target.location).toInt()
     }
 
-    fun stopTracking(player: Player) {
-        trackingPlayers.remove(player)
+    fun updateCompassTarget(hunter: Player, target: Player?) {
+        if (target == null) {
+            // 타겟이 없으면 나침반을 원래 스폰 위치로 리셋
+            hunter.compassTarget = hunter.world.spawnLocation
+            return
+        }
+        hunter.compassTarget = target.location
     }
 }
