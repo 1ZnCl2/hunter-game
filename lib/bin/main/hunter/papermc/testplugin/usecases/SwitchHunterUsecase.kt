@@ -46,8 +46,5 @@ class SwitchHunterUsecase(
                 playerStateService.setState(player, PlayerState.PREY)
             }
         }
-
-        // 새 헌터의 추적 자동 시작
-        trackingUsecase?.onPlayerBecameHunter(hunter)
     }
 }

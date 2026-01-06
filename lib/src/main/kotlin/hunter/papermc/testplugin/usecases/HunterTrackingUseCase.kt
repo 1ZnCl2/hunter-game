@@ -106,11 +106,6 @@ class HunterTrackingUsecase(
         }
     }
 
-    fun onPlayerBecameHunter(hunter: Player) {
-        // 헌터 상태로 전환되면 자동으로 추적 시작
-        startTracking(hunter)
-    }
-
     fun onPlayerNoLongerHunter(player: Player) {
         if (trackingService.isTracking(player)) {
             stopTracking(player)
