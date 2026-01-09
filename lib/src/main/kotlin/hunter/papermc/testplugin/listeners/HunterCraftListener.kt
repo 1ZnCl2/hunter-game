@@ -1,6 +1,6 @@
 package hunter.papermc.testplugin.listeners
 
-import hunter.papermc.testplugin.usecases.SwitchHunterUseCase
+import hunter.papermc.testplugin.usecases.SwitchHunterUsecase
 import hunter.papermc.testplugin.services.HunterTrackingService
 
 import org.bukkit.Bukkit
@@ -11,7 +11,7 @@ import org.bukkit.entity.Player
 import net.kyori.adventure.text.Component
 
 class HunterCraftListener(
-    private val switchHunterUseCase: SwitchHunterUseCase
+    private val switchHunterUsecase: SwitchHunterUsecase
 ) : Listener {
 
     @EventHandler
@@ -21,7 +21,7 @@ class HunterCraftListener(
 
         if (!meta.hasCustomModelData() || meta.customModelData != 1001) return
         
-        switchHunterUseCase.execute(hunter)
+        switchHunterUsecase.execute(hunter)
 
         /* Bukkit.getOnlinePlayers().forEach { p ->
             p.sendTitle(

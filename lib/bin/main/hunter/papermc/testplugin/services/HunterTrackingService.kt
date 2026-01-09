@@ -12,35 +12,79 @@ class HunterTrackingService(
 ) {
     private val trackingPlayers = mutableSetOf<UUID>()
 
+    // 추적 시작 시각 (ms)
+    private val trackingStartTimes = mutableMapOf<UUID, Long>()
+
+    // 쿨타임 종료 시각 (ms)
+    private val cooldownUntil = mutableMapOf<UUID, Long>()
+
+    private val TRACKING_DURATION_MS = 10_000L // 10초
+    private val COOLDOWN_MS = 50_000L         // 50초
+
     fun isTracking(player: Player): Boolean =
         trackingPlayers.contains(player.uniqueId)
 
     fun isTracking(uuid: UUID): Boolean =
         trackingPlayers.contains(uuid)
 
-        fun startTracking(player: Player): Boolean {
-        if (trackingPlayers.contains(player.uniqueId)) return false
-        trackingPlayers.add(player.uniqueId)
+    fun startTracking(player: Player): Boolean {
+        val uuid = player.uniqueId
+        if (trackingPlayers.contains(uuid)) return false
+
+        trackingPlayers.add(uuid)
+        trackingStartTimes[uuid] = System.currentTimeMillis()
         return true
     }
 
 
     fun stopTracking(player: Player) {
-        trackingPlayers.remove(player.uniqueId)
+        val uuid = player.uniqueId
+        trackingPlayers.remove(uuid)
+        trackingStartTimes.remove(uuid)
+        // 추적이 종료될 때마다 50초 쿨타임 부여
+        cooldownUntil[uuid] = System.currentTimeMillis() + COOLDOWN_MS
     }
 
     fun stopTracking(uuid: UUID) {
         trackingPlayers.remove(uuid)
+        trackingStartTimes.remove(uuid)
+        cooldownUntil[uuid] = System.currentTimeMillis() + COOLDOWN_MS
     }
 
     fun stopAllTracking() {
         trackingPlayers.clear()
+        trackingStartTimes.clear()
     }
 
     fun getTrackingPlayerUUIDs(): Set<UUID> = trackingPlayers.toSet()
 
     fun getTrackingPlayers(): Set<Player> =
         trackingPlayers.mapNotNull { uuid -> Bukkit.getPlayer(uuid) }.toSet()
+
+    /**
+     * 현재 플레이어가 추적을 새로 시작할 수 있는지 여부
+     */
+    fun canStartTracking(player: Player): Boolean =
+        getRemainingCooldownMillis(player) <= 0
+
+    /**
+     * 쿨타임이 얼마나 남았는지 (ms). 없으면 0.
+     */
+    fun getRemainingCooldownMillis(player: Player): Long {
+        val uuid = player.uniqueId
+        val until = cooldownUntil[uuid] ?: return 0L
+        val remaining = until - System.currentTimeMillis()
+        return if (remaining > 0) remaining else 0L
+    }
+
+    /**
+     * 10초 추적 시간이 지났는지 여부
+     */
+    fun hasTrackingExpired(player: Player): Boolean {
+        val uuid = player.uniqueId
+        val start = trackingStartTimes[uuid] ?: return false
+        return System.currentTimeMillis() - start >= TRACKING_DURATION_MS
+    }
 
     fun getNearestEnemy(hunter: Player): Player? {
         val hunterTeam = teamService.getTeam(hunter) ?: return null

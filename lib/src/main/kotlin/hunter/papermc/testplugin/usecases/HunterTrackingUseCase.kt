@@ -8,7 +8,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
-class HunterTrackingUseCase(
+class HunterTrackingUsecase(
     private val trackingService: HunterTrackingService,
     private val playerStateService: PlayerStateService,
     private val teamService: TeamService
@@ -23,20 +23,30 @@ class HunterTrackingUseCase(
         // 팀 확인
         val hunterTeam = teamService.getTeam(hunter)
         if (hunterTeam == null) {
-            hunter.sendMessage(Component.text("§c팀에 소속되어 있지 않습니다."))
+            hunter.sendMessage(Component.text("§c당신은 팀에 소속되어 있지 않습니다."))
             return false
         }
 
-        // 이미 추적 중인지 확인
-        if (trackingService.isTracking(hunter)) {
+        /* if (trackingService.isTracking(hunter)) {
             hunter.sendMessage(Component.text("§7이미 추적 중입니다."))
+            return false
+        } */
+        
+
+        // 쿨타임 확인
+        if (!trackingService.canStartTracking(hunter)) {
+            val remainingMs = trackingService.getRemainingCooldownMillis(hunter)
+            val remainingSec = (remainingMs / 1000L) + 1L
+            hunter.sendMessage(
+                Component.text("§c아직 나침반에 힘이 돌아오지 않았습니다! §7${remainingSec}초 후에 다시 사용할 수 있습니다.")
+            )
             return false
         }
 
         // 추적 시작
         val started = trackingService.startTracking(hunter)
         if (started) {
-            hunter.sendMessage(Component.text("§a추적을 시작했습니다."))
+            hunter.sendMessage(Component.text("§a추적을 시작합니다..."))
             // 즉시 한 번 업데이트
             updateTracking(hunter)
         }
@@ -67,6 +77,12 @@ class HunterTrackingUseCase(
             return false
         }
 
+        // 10초 제한 시간 확인 (만료되면 자동 종료)
+        if (trackingService.hasTrackingExpired(hunter)) {
+            stopTracking(hunter)
+            return false
+        }
+
         // 헌터 상태 확인
         if (playerStateService.getState(hunter) != PlayerState.HUNTER) {
             stopTracking(hunter)
@@ -94,9 +110,8 @@ class HunterTrackingUseCase(
 
         // 액션바 메시지 표시
         hunter.sendActionBar(
-            Component.text("§c추적 중: §f${target.name}${distanceText}")
+            Component.text("§c추적 중: §f${distanceText}")
         )
-
         return true
     }
 
@@ -104,11 +119,6 @@ class HunterTrackingUseCase(
         trackingService.getTrackingPlayers().forEach { hunter ->
             updateTracking(hunter)
         }
-    }
-
-    fun onPlayerBecameHunter(hunter: Player) {
-        // 헌터 상태로 전환되면 자동으로 추적 시작
-        startTracking(hunter)
     }
 
     fun onPlayerNoLongerHunter(player: Player) {

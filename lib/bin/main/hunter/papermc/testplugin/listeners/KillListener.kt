@@ -1,7 +1,7 @@
 package hunter.papermc.testplugin.listeners
 
 import hunter.papermc.testplugin.services.GameStateService
-import hunter.papermc.testplugin.usecases.HunterTrackingUseCase
+import hunter.papermc.testplugin.usecases.HunterTrackingUsecase
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -10,7 +10,7 @@ import org.bukkit.Sound
 
 class KillListener(
     private val gameStateService: GameStateService,
-    private val trackingUseCase: HunterTrackingUseCase
+    private val trackingUsecase: HunterTrackingUsecase
 ) : Listener {
 
     @EventHandler
@@ -34,6 +34,6 @@ class KillListener(
         Bukkit.broadcastMessage("§c[GAME] ${killer.name}님이 ${deceased.name}님을 처치했습니다!")
 
         // 추적 초기화 (사망한 플레이어의 추적 중지)
-        trackingUseCase.stopTracking(deceased)
+        trackingUsecase.stopTracking(deceased)
     }
 }

@@ -2,7 +2,7 @@ package hunter.papermc.testplugin.listeners
 
 import hunter.papermc.testplugin.components.PlayerState
 import hunter.papermc.testplugin.services.PlayerStateService
-import hunter.papermc.testplugin.usecases.HunterTrackingUseCase
+import hunter.papermc.testplugin.usecases.HunterTrackingUsecase
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -11,7 +11,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 
 class HunterUsingListener(
     private val playerStateService: PlayerStateService,
-    private val trackingUseCase: HunterTrackingUseCase
+    private val trackingUsecase: HunterTrackingUsecase
 ) : Listener {
 
     @EventHandler
@@ -32,6 +32,6 @@ class HunterUsingListener(
 
         // 추적 토글: 추적 중이면 중지, 아니면 시작
         event.isCancelled = true // 아이템 사용 이벤트 취소
-        trackingUseCase.toggleTracking(player)
+        trackingUsecase.toggleTracking(player)
     }
 }

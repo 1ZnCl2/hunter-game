@@ -9,11 +9,11 @@ import hunter.papermc.testplugin.services.SwitchHunterService
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
-class SwitchHunterUseCase(
+class SwitchHunterUsecase(
     private val teamService: TeamService,
     private val playerStateService: PlayerStateService,
     private val switchHunterService: SwitchHunterService,
-    private val trackingUseCase: HunterTrackingUseCase? = null
+    private val trackingUsecase: HunterTrackingUsecase? = null
 ) {
     fun execute(hunter: Player) {
         val hunterTeam = teamService.getTeam(hunter)
@@ -22,7 +22,7 @@ class SwitchHunterUseCase(
         // 기존 헌터들의 추적 중지
         Bukkit.getOnlinePlayers().forEach { player ->
             if (playerStateService.getState(player) == PlayerState.HUNTER) {
-                trackingUseCase?.onPlayerNoLongerHunter(player)
+                trackingUsecase?.onPlayerNoLongerHunter(player)
             }
         }
 
@@ -46,8 +46,5 @@ class SwitchHunterUseCase(
                 playerStateService.setState(player, PlayerState.PREY)
             }
         }
-
-        // 새 헌터의 추적 자동 시작
-        trackingUseCase?.onPlayerBecameHunter(hunter)
     }
 }

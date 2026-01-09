@@ -10,8 +10,8 @@ import hunter.papermc.testplugin.services.TeamService
 import hunter.papermc.testplugin.services.SwitchHunterService
 import hunter.papermc.testplugin.services.PlayerStateService
 import hunter.papermc.testplugin.schedulers.HunterTrackingSchedulers
-import hunter.papermc.testplugin.usecases.SwitchHunterUseCase
-import hunter.papermc.testplugin.usecases.HunterTrackingUseCase
+import hunter.papermc.testplugin.usecases.SwitchHunterUsecase
+import hunter.papermc.testplugin.usecases.HunterTrackingUsecase
 
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
@@ -46,33 +46,33 @@ class Hunter : JavaPlugin(), Listener {
         // 레시피
         HunterItemRecipes.register(this)
         
-        // UseCase 생성
-        val trackingUseCase = HunterTrackingUseCase(
+        // Usecase 생성
+        val trackingUsecase = HunterTrackingUsecase(
             trackingService,
             playerStateService,
             teamService
         )
         
-        val switchHunterUseCase = SwitchHunterUseCase(
+        val switchHunterUsecase = SwitchHunterUsecase(
             teamService,
             playerStateService,
             switchHunterService,
-            trackingUseCase
+            trackingUsecase
         )
 
         // 스케줄러 (20틱 = 1초마다 업데이트)
-        val trackingSchedulers = HunterTrackingSchedulers(trackingUseCase)
+        val trackingSchedulers = HunterTrackingSchedulers(trackingUsecase)
         trackingSchedulers.runTaskTimer(this, 0L, 20L) // 1초 간격
 
         // 리스너
         server.pluginManager.registerEvents(
-            HunterCraftListener(switchHunterUseCase), this
+            HunterCraftListener(switchHunterUsecase), this
         )
         server.pluginManager.registerEvents(
-            HunterUsingListener(playerStateService, trackingUseCase), this
+            HunterUsingListener(playerStateService, trackingUsecase), this
         )
         server.pluginManager.registerEvents(
-            PlayerLifecycleListener(trackingUseCase), this
+            PlayerLifecycleListener(trackingUsecase), this
         )
 
         // 커맨드
@@ -90,68 +90,4 @@ class Hunter : JavaPlugin(), Listener {
         // 저장된 팀이 있으면 스코어보드에 적용
         teamService.applyTeamToPlayer(event.player)
     }
-
-    /* private fun registerHunterRecipe() {
-        // 결과물
-        val hunterItem = ItemStack(Material.RECOVERY_COMPASS)
-        val meta = hunterItem.itemMeta
-        meta.setDisplayName("§c술래 아이템")
-        meta.lore = listOf("§7술래의 증표. 1분 간격으로 상대 팀의 방향을 보여줍니다.")
-        hunterItem.itemMeta = meta
-
-        // 네임스페이스 키
-        val key = NamespacedKey(this, "hunter_switch_item")
-
-        // 조합 패턴
-        val recipe = ShapedRecipe(key, hunterItem)
-        recipe.shape(
-            " D ",
-            "GSQ",
-            " I "
-        )
-        recipe.setIngredient('Q', Material.QUARTZ_BLOCK)
-        recipe.setIngredient('D', Material.DIAMOND_BLOCK)
-        recipe.setIngredient('I', Material.IRON_BLOCK)
-        recipe.setIngredient('G', Material.GOLD_BLOCK)
-        recipe.setIngredient('S', Material.SPIDER_EYE)
-
-        // 서버에 등록
-        server.addRecipe(recipe)
-    } */
-    
-/* override fun onCommand(
-        sender: CommandSender,
-        command: Command,
-        label: String,
-        args: Array<out String>
-    ): Boolean {
-        if (command.name.equals("team", ignoreCase = true)) {
-            if (args.size != 2) {
-                sender.sendMessage("사용법: /team <blue|red> <player>")
-                return true
-            }
-
-            val teamName = args[0].replaceFirstChar { it.uppercaseChar() }
-            val player = Bukkit.getPlayer(args[1])
-            if (player == null) {
-                sender.sendMessage("❌ 플레이어를 찾을 수 없습니다.")
-                return true
-            }
-
-            TeamManage.assignPlayerToTeam(player, teamName)
-            return true
-        }
-
-        if (command.name.equals("teamlist", ignoreCase = true)) {
-            for (online in Bukkit.getOnlinePlayers()) {
-                val team = online.scoreboard.getEntryTeam(online.name)
-                val teamName = team?.name ?: "없음"
-                sender.sendMessage("${online.name} -> $teamName")
-            }
-            return true
-        }
-
-        return false
-    } */
-    
 }
