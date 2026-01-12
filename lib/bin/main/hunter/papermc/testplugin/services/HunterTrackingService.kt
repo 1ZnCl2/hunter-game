@@ -36,7 +36,6 @@ class HunterTrackingService(
         return true
     }
 
-
     fun stopTracking(player: Player) {
         val uuid = player.uniqueId
         trackingPlayers.remove(uuid)

@@ -42,6 +42,7 @@ class Hunter : JavaPlugin(), Listener {
         val trackingService = HunterTrackingService(teamService)
         val playerStateService = PlayerStateService(this)
         val switchHunterService = SwitchHunterService()
+        val gameStateService = GameStateService()
 
         // 레시피
         HunterItemRecipes.register(this)
@@ -58,6 +59,14 @@ class Hunter : JavaPlugin(), Listener {
             playerStateService,
             switchHunterService,
             trackingUsecase
+        )
+
+        val gameControlUsecase = GameControlUsecase(
+            gameStateService
+        )
+
+        val gamePausingUsecase = GamePausingUsecase(
+            gameStateService
         )
 
         // 스케줄러 (20틱 = 1초마다 업데이트)
@@ -81,6 +90,9 @@ class Hunter : JavaPlugin(), Listener {
         )
         getCommand("teamlist")?.setExecutor(
             TeamListCommand(teamService)
+        )
+        getCommand("phase").setExecutor(
+            GameManageCommand(gameControlUsecase, gamePausingUsecase)
         )
     }
 
