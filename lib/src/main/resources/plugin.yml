@@ -13,4 +13,6 @@ commands:
     description: 현재 팀 명단을 확인합니다.
     usage: /teamlist
 
-    
+  game:
+    description: 팀 상태를 제어합니다.
+    usage: /game <start|pause|resume|end|reset|status>
