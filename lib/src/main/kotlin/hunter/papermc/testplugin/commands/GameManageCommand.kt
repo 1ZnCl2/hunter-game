@@ -4,9 +4,11 @@ import hunter.papermc.testplugin.usecases.GameControlUsecase
 import hunter.papermc.testplugin.usecases.GamePausingUsecase
 import hunter.papermc.testplugin.components.GamePhase
 
+import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 
 class GameManageCommand(private val controlUsecase: GameControlUsecase,
     private val pausingUsecase: GamePausingUsecase,
@@ -23,7 +25,10 @@ class GameManageCommand(private val controlUsecase: GameControlUsecase,
             }
 
             val phase = args[0].lowercase()
-            val player = sender as Player
+            val player = sender as? Player ?: run {
+                sender.sendMessage("❌ 이 명령어는 플레이어만 사용할 수 있습니다.")
+                return true
+            }            
 
             when (phase) {
                 "start" -> controlUsecase.startGame(player)
@@ -44,10 +49,10 @@ class GameManageCommand(private val controlUsecase: GameControlUsecase,
     
                 else -> {
                     sender.sendMessage("§c알 수 없는 서브 명령입니다. (start|pause|resume|end|reset|status)")
-                    return
+                    return true
                 }
             }
-            
-            return
+
+            return true
     }
 }
