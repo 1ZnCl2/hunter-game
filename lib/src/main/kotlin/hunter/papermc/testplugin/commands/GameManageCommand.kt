@@ -17,21 +17,37 @@ class GameManageCommand(private val controlUsecase: GameControlUsecase,
         label: String,
         args: Array<out String>
         ): Boolean{
-            if (args.size != 2) {
-            sender.sendMessage("§c사용법: /phase <wait|start|end>")
-            return true
-        }
+            if (args.isEmpty()) {
+                sender.sendMessage("§c사용법: /game <start|pause|resume|end|reset|status>")
+                return true
+            }
 
-            val phase = runCatching {
-            TeamType.valueOf(args[0].uppercase())
-        }.getOrNull() ?: run {
-            sender.sendMessage("§c상태가 잘못 입력되었습니다.")
-            return true
-        }
+            val phase = args[0].lowercase()
+            val player = sender as Player
 
-        if (phase == GamePhase.WAITING) {
-            controlUsecase.
-        }
-
+            when (phase) {
+                "start" -> controlUsecase.startGame(player)
+                "end"   -> controlUsecase.endGame(player)
+                "reset" -> controlUsecase.resetGame(player)
+    
+                "pause" -> pausingUsecase.pauseGame(player)
+                "resume" -> pausingUsecase.resumeGame(player)
+                "toggle" -> pausingUsecase.togglePause(player)
+    
+                "status" -> {
+                    if (player != null) {
+                        controlUsecase.sendStatus(player)
+                    } else {
+                        sender.sendMessage(controlUsecase.getGameStatus())
+                    }
+                }
+    
+                else -> {
+                    sender.sendMessage("§c알 수 없는 서브 명령입니다. (start|pause|resume|end|reset|status)")
+                    return
+                }
+            }
+            
+            return
     }
 }
