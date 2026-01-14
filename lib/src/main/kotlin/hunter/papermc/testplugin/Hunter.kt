@@ -96,7 +96,7 @@ class Hunter : JavaPlugin(), Listener {
         getCommand("teamlist")?.setExecutor(
             TeamListCommand(teamService)
         )
-        getCommand("phase").setExecutor(
+        getCommand("game").setExecutor(
             GameManageCommand(gameControlUsecase, gamePausingUsecase)
         )
     }
