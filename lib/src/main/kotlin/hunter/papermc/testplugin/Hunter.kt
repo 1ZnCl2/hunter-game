@@ -11,6 +11,7 @@ import hunter.papermc.testplugin.services.TeamService
 import hunter.papermc.testplugin.services.SwitchHunterService
 import hunter.papermc.testplugin.services.PlayerStateService
 import hunter.papermc.testplugin.schedulers.HunterTrackingSchedulers
+import hunter.papermc.testplugin.schedulers.GameTimerScheduler
 import hunter.papermc.testplugin.usecases.SwitchHunterUsecase
 import hunter.papermc.testplugin.usecases.HunterTrackingUsecase
 import hunter.papermc.testplugin.usecases.GameControlUsecase
@@ -36,6 +37,7 @@ import org.bukkit.inventory.ShapedRecipe
 class Hunter : JavaPlugin(), Listener {
 
     private lateinit var teamService: TeamService
+    private lateinit var gameTimerScheduler: GameTimerScheduler
 
     override fun onEnable() {
         logger.info("Hunter Plugin is Activated")
@@ -74,9 +76,14 @@ class Hunter : JavaPlugin(), Listener {
             gameStateService
         )
 
-        // 스케줄러 (20틱 = 1초마다 업데이트)
+        // 스케줄러
         val trackingSchedulers = HunterTrackingSchedulers(trackingUsecase)
         trackingSchedulers.runTaskTimer(this, 0L, 20L) // 1초 간격
+
+        // 게임 타이머 스케줄러
+        gameTimerScheduler = GameTimerScheduler(gameStateService, gameControlUsecase)
+        val timerTaskId = gameTimerScheduler.runTaskTimer(this, 0L, 20L).taskId
+        gameStateService.setTimerTaskId(timerTaskId)
 
         // 리스너
         server.pluginManager.registerEvents(

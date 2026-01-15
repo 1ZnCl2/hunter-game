@@ -7,9 +7,18 @@ class GameStateService {
     var phase: GamePhase = GamePhase.WAITING
         private set
 
+    private var gameStartTime: Long = 0
+    private var timerTaskId: Int = -1
+
+    companion object {
+        const val GAME_DURATION_SECONDS = 2 * 60 * 60
+        const val GAME_DURATION_TICKS = GAME_DURATION_SECONDS * 20
+    }
+
     fun startGame() {
         if (phase != GamePhase.WAITING) return
         phase = GamePhase.RUNNING
+        gameStartTime = System.currentTimeMillis()
 
         Bukkit.getOnlinePlayers().forEach { player ->
             player.sendTitle(
@@ -23,6 +32,11 @@ class GameStateService {
     fun endGame() {
         if (phase != GamePhase.RUNNING) return
         phase = GamePhase.END
+
+        if (timerTaskId != -1) {
+            Bukkit.getScheduler().cancelTask(timerTaskId)
+            timerTaskId = -1
+        }
 
         Bukkit.getOnlinePlayers().forEach { player ->
             player.sendTitle(
@@ -48,6 +62,11 @@ class GameStateService {
 
     fun resetGame() {
         phase = GamePhase.WAITING
+        gameStartTime = 0
+        if (timerTaskId != -1) {
+            Bukkit.getScheduler().cancelTask(timerTaskId)
+            timerTaskId = -1
+        }
         Bukkit.broadcastMessage("§7게임 초기화...")
     }
 
@@ -56,4 +75,24 @@ class GameStateService {
     fun isWaiting(): Boolean = phase == GamePhase.WAITING
     
     fun isEnded(): Boolean = phase == GamePhase.END
+
+    fun getElapsedSeconds(): Long {
+        if (!isRunning()) return 0L
+        return (System.currentTimeMillis() - gameStartTime) / 1000
+    }
+
+    fun getRemainingSeconds(): Long {
+        if (!isRunning()) return 0L
+        val remaining = GAME_DURATION_SECONDS - getElapsedSeconds()
+        return if (remaining > 0) remaining else 0L
+    }
+
+    fun getProgress(): Float {
+        if (!isRunning()) return 0f
+        return (getElapsedSeconds().toFloat() / GAME_DURATION_SECONDS).coerceIn(0f, 1f)
+    }
+
+    fun setTimerTaskId(taskId: Int) {
+        timerTaskId = taskId
+    }
 }
