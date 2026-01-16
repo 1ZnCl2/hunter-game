@@ -80,10 +80,9 @@ class Hunter : JavaPlugin(), Listener {
         val trackingSchedulers = HunterTrackingSchedulers(trackingUsecase)
         trackingSchedulers.runTaskTimer(this, 0L, 20L) // 1초 간격
 
-        // 게임 타이머 스케줄러
-        gameTimerScheduler = GameTimerScheduler(gameStateService, gameControlUsecase)
-        val timerTaskId = gameTimerScheduler.runTaskTimer(this, 0L, 20L).taskId
-        gameStateService.setTimerTaskId(timerTaskId)
+        // 게임 타이머 스케줄러 (항상 실행, 게임 상태에 따라 자동으로 보스바 표시/숨김)
+        val gameTimerScheduler = GameTimerScheduler(gameStateService, gameControlUsecase)
+        gameTimerScheduler.runTaskTimer(this, 0L, 20L) // 1초 간격
 
         // 리스너
         server.pluginManager.registerEvents(

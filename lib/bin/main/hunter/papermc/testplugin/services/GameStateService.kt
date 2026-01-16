@@ -8,7 +8,6 @@ class GameStateService {
         private set
 
     private var gameStartTime: Long = 0
-    private var timerTaskId: Int = -1
 
     companion object {
         const val GAME_DURATION_SECONDS = 2 * 60 * 60
@@ -32,11 +31,6 @@ class GameStateService {
     fun endGame() {
         if (phase != GamePhase.RUNNING) return
         phase = GamePhase.END
-
-        if (timerTaskId != -1) {
-            Bukkit.getScheduler().cancelTask(timerTaskId)
-            timerTaskId = -1
-        }
 
         Bukkit.getOnlinePlayers().forEach { player ->
             player.sendTitle(
@@ -63,10 +57,6 @@ class GameStateService {
     fun resetGame() {
         phase = GamePhase.WAITING
         gameStartTime = 0
-        if (timerTaskId != -1) {
-            Bukkit.getScheduler().cancelTask(timerTaskId)
-            timerTaskId = -1
-        }
         Bukkit.broadcastMessage("§7게임 초기화...")
     }
 
@@ -90,9 +80,5 @@ class GameStateService {
     fun getProgress(): Float {
         if (!isRunning()) return 0f
         return (getElapsedSeconds().toFloat() / GAME_DURATION_SECONDS).coerceIn(0f, 1f)
-    }
-
-    fun setTimerTaskId(taskId: Int) {
-        timerTaskId = taskId
     }
 }
