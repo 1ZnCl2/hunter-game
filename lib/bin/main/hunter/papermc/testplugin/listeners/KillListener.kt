@@ -24,13 +24,13 @@ class KillListener(
         val deceased = event.entity
         val killer = deceased.killer ?: return
 
-        // 킬러 팀에 점수 추가
+        if(killer != hunterService.getHunterPlayer()) return
+
         val killerTeam = teamService.getTeam(killer)
         if (killerTeam != null) {
             gameScoreService.addScore(killerTeam, 1)
         }
 
-        // 킬 소리 재생
         Bukkit.getOnlinePlayers().forEach { player ->
             player.playSound(
                 deceased.location,
@@ -40,10 +40,8 @@ class KillListener(
             )
         }
 
-        // 킬 메시지 브로드캐스트
         Bukkit.broadcastMessage("§c[GAME] ${killer.name}님이 ${deceased.name}님을 처치했습니다!")
 
-        // 추적 초기화 (사망한 플레이어의 추적 중지)
         trackingUsecase.stopTracking(deceased)
     }
 }
