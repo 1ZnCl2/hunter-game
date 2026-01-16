@@ -22,13 +22,5 @@ class HunterCraftListener(
         if (!meta.hasCustomModelData() || meta.customModelData != 1001) return
         
         switchHunterUsecase.execute(hunter)
-
-        /* Bukkit.getOnlinePlayers().forEach { p ->
-            p.sendTitle(
-                "§7술래 탄생!",
-                "§f${hunter.name}님이 술래가 되었습니다!",
-                10, 60, 10
-            )
-        } */ 
     }
 }

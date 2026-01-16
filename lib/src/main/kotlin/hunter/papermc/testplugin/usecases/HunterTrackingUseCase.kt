@@ -130,5 +130,8 @@ class HunterTrackingUsecase(
     fun onPlayerQuit(uuid: java.util.UUID) {
         trackingService.stopTracking(uuid)
     }
+
+    fun isTracking(player: Player): Boolean =
+        trackingService.isTracking(player)
 }
 
