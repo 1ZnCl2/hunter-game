@@ -24,6 +24,7 @@ class GamePausingUsecase(
             return false
         }
         
+        gameStateService.resumeGameInternal()
         gameStateService.startGame()
         executor?.sendMessage(Component.text("§a게임이 재개되었습니다."))
         return true

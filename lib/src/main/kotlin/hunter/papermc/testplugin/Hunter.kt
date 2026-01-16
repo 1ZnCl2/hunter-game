@@ -5,13 +5,16 @@ import hunter.papermc.testplugin.commands.TeamListCommand
 import hunter.papermc.testplugin.listeners.HunterCraftListener
 import hunter.papermc.testplugin.listeners.HunterUsingListener
 import hunter.papermc.testplugin.listeners.PlayerLifecycleListener
+import hunter.papermc.testplugin.listeners.KillListener
 import hunter.papermc.testplugin.recipes.HunterItemRecipes
 import hunter.papermc.testplugin.services.HunterTrackingService
 import hunter.papermc.testplugin.services.TeamService
 import hunter.papermc.testplugin.services.SwitchHunterService
 import hunter.papermc.testplugin.services.PlayerStateService
+import hunter.papermc.testplugin.services.GameScoreService
 import hunter.papermc.testplugin.schedulers.HunterTrackingSchedulers
 import hunter.papermc.testplugin.schedulers.GameTimerScheduler
+import hunter.papermc.testplugin.schedulers.ScoreboardDisplayScheduler
 import hunter.papermc.testplugin.usecases.SwitchHunterUsecase
 import hunter.papermc.testplugin.usecases.HunterTrackingUsecase
 import hunter.papermc.testplugin.usecases.GameControlUsecase
@@ -38,6 +41,8 @@ class Hunter : JavaPlugin(), Listener {
 
     private lateinit var teamService: TeamService
     private lateinit var gameTimerScheduler: GameTimerScheduler
+    private lateinit var scoreboardDisplayScheduler: ScoreboardDisplayScheduler
+    private lateinit var gameScoreService: GameScoreService
 
     override fun onEnable() {
         logger.info("Hunter Plugin is Activated")
@@ -46,6 +51,7 @@ class Hunter : JavaPlugin(), Listener {
         // 서비스
         val scoreboard = Bukkit.getScoreboardManager().mainScoreboard
         teamService = TeamService(this, scoreboard)
+        gameScoreService = GameScoreService()
         val trackingService = HunterTrackingService(teamService)
         val playerStateService = PlayerStateService(this)
         val switchHunterService = SwitchHunterService()
@@ -80,9 +86,11 @@ class Hunter : JavaPlugin(), Listener {
         val trackingSchedulers = HunterTrackingSchedulers(trackingUsecase)
         trackingSchedulers.runTaskTimer(this, 0L, 20L) // 1초 간격
 
-        // 게임 타이머 스케줄러 (항상 실행, 게임 상태에 따라 자동으로 보스바 표시/숨김)
-        val gameTimerScheduler = GameTimerScheduler(gameStateService, gameControlUsecase)
+        gameTimerScheduler = GameTimerScheduler(gameStateService, gameControlUsecase)
         gameTimerScheduler.runTaskTimer(this, 0L, 20L) // 1초 간격
+
+        scoreboardDisplayScheduler = ScoreboardDisplayScheduler(gameScoreService, teamService)
+        scoreboardDisplayScheduler.runTaskTimer(this, 0L, 10L) // 0.5초 간격
 
         // 리스너
         server.pluginManager.registerEvents(
@@ -93,6 +101,9 @@ class Hunter : JavaPlugin(), Listener {
         )
         server.pluginManager.registerEvents(
             PlayerLifecycleListener(trackingUsecase), this
+        )
+        server.pluginManager.registerEvents(
+            KillListener(gameStateService, gameScoreService, teamService, trackingUsecase), this
         )
 
         // 커맨드

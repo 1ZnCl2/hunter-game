@@ -1,6 +1,8 @@
 package hunter.papermc.testplugin.listeners
 
 import hunter.papermc.testplugin.services.GameStateService
+import hunter.papermc.testplugin.services.GameScoreService
+import hunter.papermc.testplugin.services.TeamService
 import hunter.papermc.testplugin.usecases.HunterTrackingUsecase
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
@@ -10,6 +12,8 @@ import org.bukkit.Sound
 
 class KillListener(
     private val gameStateService: GameStateService,
+    private val gameScoreService: GameScoreService,
+    private val teamService: TeamService,
     private val trackingUsecase: HunterTrackingUsecase
 ) : Listener {
 
@@ -19,6 +23,12 @@ class KillListener(
 
         val deceased = event.entity
         val killer = deceased.killer ?: return
+
+        // 킬러 팀에 점수 추가
+        val killerTeam = teamService.getTeam(killer)
+        if (killerTeam != null) {
+            gameScoreService.addScore(killerTeam, 1)
+        }
 
         // 킬 소리 재생
         Bukkit.getOnlinePlayers().forEach { player ->

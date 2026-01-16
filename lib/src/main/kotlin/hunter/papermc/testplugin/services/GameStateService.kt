@@ -8,6 +8,8 @@ class GameStateService {
         private set
 
     private var gameStartTime: Long = 0
+    private var pausedTime: Long = 0
+    private var pauseStartTime: Long = 0
 
     companion object {
         const val GAME_DURATION_SECONDS = 2 * 60 * 60
@@ -17,7 +19,10 @@ class GameStateService {
     fun startGame() {
         if (phase != GamePhase.WAITING) return
         phase = GamePhase.RUNNING
-        gameStartTime = System.currentTimeMillis()
+        
+        if (gameStartTime == 0L) {
+            gameStartTime = System.currentTimeMillis()
+        }
 
         Bukkit.getOnlinePlayers().forEach { player ->
             player.sendTitle(
@@ -44,6 +49,7 @@ class GameStateService {
     fun pauseGame() {
         if (phase != GamePhase.RUNNING) return
         phase = GamePhase.WAITING
+        pauseStartTime = System.currentTimeMillis()
 
         Bukkit.getOnlinePlayers().forEach { player ->
             player.sendTitle(
@@ -57,6 +63,8 @@ class GameStateService {
     fun resetGame() {
         phase = GamePhase.WAITING
         gameStartTime = 0
+        pausedTime = 0
+        pauseStartTime = 0
         Bukkit.broadcastMessage("§7게임 초기화...")
     }
 
@@ -67,18 +75,32 @@ class GameStateService {
     fun isEnded(): Boolean = phase == GamePhase.END
 
     fun getElapsedSeconds(): Long {
-        if (!isRunning()) return 0L
-        return (System.currentTimeMillis() - gameStartTime) / 1000
+        if (gameStartTime == 0L) return 0L
+        
+        val elapsedMs = if (isRunning()) {
+            System.currentTimeMillis() - gameStartTime - pausedTime
+        } else {
+            (pauseStartTime - gameStartTime) - pausedTime
+        }
+        
+        return elapsedMs / 1000
     }
 
     fun getRemainingSeconds(): Long {
-        if (!isRunning()) return 0L
+        if (gameStartTime == 0L) return GAME_DURATION_SECONDS.toLong()
         val remaining = GAME_DURATION_SECONDS - getElapsedSeconds()
         return if (remaining > 0) remaining else 0L
     }
 
     fun getProgress(): Float {
-        if (!isRunning()) return 0f
+        if (gameStartTime == 0L) return 0f
         return (getElapsedSeconds().toFloat() / GAME_DURATION_SECONDS).coerceIn(0f, 1f)
+    }
+
+    fun resumeGameInternal() {
+        if (pauseStartTime != 0L) {
+            pausedTime += System.currentTimeMillis() - pauseStartTime
+            pauseStartTime = 0
+        }
     }
 }
