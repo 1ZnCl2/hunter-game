@@ -58,15 +58,9 @@ class HunterTrackingService(
     fun getTrackingPlayers(): Set<Player> =
         trackingPlayers.mapNotNull { uuid -> Bukkit.getPlayer(uuid) }.toSet()
 
-    /**
-     * 현재 플레이어가 추적을 새로 시작할 수 있는지 여부
-     */
     fun canStartTracking(player: Player): Boolean =
         getRemainingCooldownMillis(player) <= 0
 
-    /**
-     * 쿨타임이 얼마나 남았는지 (ms). 없으면 0.
-     */
     fun getRemainingCooldownMillis(player: Player): Long {
         val uuid = player.uniqueId
         val until = cooldownUntil[uuid] ?: return 0L
@@ -74,9 +68,6 @@ class HunterTrackingService(
         return if (remaining > 0) remaining else 0L
     }
 
-    /**
-     * 10초 추적 시간이 지났는지 여부
-     */
     fun hasTrackingExpired(player: Player): Boolean {
         val uuid = player.uniqueId
         val start = trackingStartTimes[uuid] ?: return false

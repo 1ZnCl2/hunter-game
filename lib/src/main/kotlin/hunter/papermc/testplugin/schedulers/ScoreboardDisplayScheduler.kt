@@ -11,7 +11,7 @@ class ScoreboardDisplayScheduler(
     private val teamService: TeamService
 ) : BukkitRunnable() {
 
-    private val scoreboard = Bukkit.getScoreboardManager().newScoreboard()
+    private val scoreboard = Bukkit.getScoreboardManager()!!.newScoreboard()
     private val objective = scoreboard.registerNewObjective(
         "hunter_scores",
         "dummy",
@@ -29,7 +29,7 @@ class ScoreboardDisplayScheduler(
     private fun updateScoreboard() {
         val scores = gameScoreService.getAllScores()
         
-        objective.scoreList.forEach { score ->
+        objective.scoreList.forEach { score: String ->
             scoreboard.resetScores(score)
         }
 
@@ -46,7 +46,7 @@ class ScoreboardDisplayScheduler(
             index--
         }
 
-        Bukkit.getOnlinePlayers().forEach { player ->
+        Bukkit.getOnlinePlayers().forEach { player: org.bukkit.entity.Player ->
             if (player.scoreboard != scoreboard) {
                 player.scoreboard = scoreboard
             }

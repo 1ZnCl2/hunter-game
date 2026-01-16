@@ -24,7 +24,7 @@ class KillListener(
         val deceased = event.entity
         val killer = deceased.killer ?: return
 
-        if(killer != hunterService.getHunterPlayer()) return
+        if(killer.uniqueId != trackingUsecase.getHunterPlayer()) return
 
         val killerTeam = teamService.getTeam(killer)
         if (killerTeam != null) {
