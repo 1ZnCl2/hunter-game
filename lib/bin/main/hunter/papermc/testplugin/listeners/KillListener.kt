@@ -16,7 +16,6 @@ class KillListener(
     private val teamService: TeamService,
     private val trackingUsecase: HunterTrackingUsecase
 ) : Listener {
-
     @EventHandler
     fun onPlayerDeath(event: PlayerDeathEvent) {
         if (!gameStateService.isRunning()) return
@@ -24,7 +23,7 @@ class KillListener(
         val deceased = event.entity
         val killer = deceased.killer ?: return
 
-        if(killer.uniqueId != trackingUsecase.getHunterPlayer()) return
+        if (!trackingUsecase.isTracking(killer)) return
 
         val killerTeam = teamService.getTeam(killer)
         if (killerTeam != null) {

@@ -11,15 +11,19 @@ class ScoreboardDisplayScheduler(
     private val teamService: TeamService
 ) : BukkitRunnable() {
 
-    private val scoreboard = Bukkit.getScoreboardManager()!!.newScoreboard()
-    private val objective = scoreboard.registerNewObjective(
-        "hunter_scores",
-        "dummy",
-        "§6§l점 수 판 "
-    )
-    
+    private lateinit var scoreboard: org.bukkit.scoreboard.Scoreboard
+
     init {
-        objective.displaySlot = org.bukkit.scoreboard.DisplaySlot.SIDEBAR
+        scoreboard = Bukkit.getScoreboardManager()!!.mainScoreboard
+        // Initialize the objective
+        if (scoreboard.getObjective("hunter_scores") == null) {
+            val objective = scoreboard.registerNewObjective(
+                "hunter_scores",
+                "dummy",
+                "§6§l점 수 판"
+            )
+            objective.displaySlot = org.bukkit.scoreboard.DisplaySlot.SIDEBAR
+        }
     }
 
     override fun run() {
@@ -28,10 +32,15 @@ class ScoreboardDisplayScheduler(
 
     private fun updateScoreboard() {
         val scores = gameScoreService.getAllScores()
-        
-        objective.scoreList.forEach { score: String ->
-            scoreboard.resetScores(score)
-        }
+
+        // Remove and re-register the objective to clear all scores
+        scoreboard.getObjective("hunter_scores")?.unregister()
+        val objective = scoreboard.registerNewObjective(
+            "hunter_scores",
+            "dummy",
+            "§6§l점 수 판"
+        )
+        objective.displaySlot = org.bukkit.scoreboard.DisplaySlot.SIDEBAR
 
         val sortedScores = scores.entries.sortedByDescending { it.value }
         var index = sortedScores.size
@@ -41,12 +50,12 @@ class ScoreboardDisplayScheduler(
                 TeamType.YELLOW -> "§e[노랑팀]"
                 TeamType.BLUE -> "§b[하늘팀]"
             }
-            
+
             objective.getScore("$teamDisplayName §f$score").score = index
             index--
         }
 
-        Bukkit.getOnlinePlayers().forEach { player: org.bukkit.entity.Player ->
+        Bukkit.getOnlinePlayers().forEach { player ->
             if (player.scoreboard != scoreboard) {
                 player.scoreboard = scoreboard
             }
@@ -59,7 +68,7 @@ class ScoreboardDisplayScheduler(
 
     fun removePlayerFromScoreboard(player: org.bukkit.entity.Player) {
         if (player.scoreboard == scoreboard) {
-            player.scoreboard = Bukkit.getScoreboardManager().mainScoreboard
+            player.scoreboard = Bukkit.getScoreboardManager()!!.mainScoreboard
         }
     }
 }
