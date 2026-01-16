@@ -15,7 +15,6 @@ class ScoreboardDisplayScheduler(
 
     init {
         scoreboard = Bukkit.getScoreboardManager()!!.mainScoreboard
-        // Initialize the objective
         if (scoreboard.getObjective("hunter_scores") == null) {
             val objective = scoreboard.registerNewObjective(
                 "hunter_scores",
@@ -33,7 +32,6 @@ class ScoreboardDisplayScheduler(
     private fun updateScoreboard() {
         val scores = gameScoreService.getAllScores()
 
-        // Remove and re-register the objective to clear all scores
         scoreboard.getObjective("hunter_scores")?.unregister()
         val objective = scoreboard.registerNewObjective(
             "hunter_scores",
@@ -50,9 +48,7 @@ class ScoreboardDisplayScheduler(
                 TeamType.YELLOW -> "§e[노랑팀]"
                 TeamType.BLUE -> "§b[하늘팀]"
             }
-
-            objective.getScore("$teamDisplayName §f$score").score = index
-            index--
+            objective.getScore("$teamDisplayName §f$score").score = score
         }
 
         Bukkit.getOnlinePlayers().forEach { player ->

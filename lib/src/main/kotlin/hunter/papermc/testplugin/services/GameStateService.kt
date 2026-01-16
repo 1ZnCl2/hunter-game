@@ -93,8 +93,8 @@ class GameStateService {
     }
 
     fun getProgress(): Float {
-        if (gameStartTime == 0L) return 0f
-        return (getElapsedSeconds().toFloat() / GAME_DURATION_SECONDS).coerceIn(0f, 1f)
+        if (gameStartTime == 0L) return 1f
+        return (getRemainingSeconds().toFloat() / GAME_DURATION_SECONDS).coerceIn(0f, 1f)
     }
 
     fun resumeGameInternal() {
