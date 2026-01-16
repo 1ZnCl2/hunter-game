@@ -6,11 +6,13 @@ import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.scheduler.BukkitRunnable
+import java.util.UUID
 
 class GameTimerScheduler(
     private val gameStateService: GameStateService,
     private val gameControlUsecase: GameControlUsecase
 ) : BukkitRunnable() {
+    val shownPlayers = mutableSetOf<UUID>()
 
     private val bossBar = BossBar.bossBar(
         Component.text("§a게임 진행 중"),
@@ -30,12 +32,12 @@ class GameTimerScheduler(
         val minutes = remainingSeconds / 60
         val seconds = remainingSeconds % 60
 
-        // 보스 바 업데이트
-        bossBar.progress(progress.toDouble())
+        bossBar.progress(progress)
         bossBar.name(Component.text("§a남은 시간 : %02d:%02d".format(minutes, seconds)))
 
         Bukkit.getOnlinePlayers().forEach { player ->
-            if (!player.showBossBar(bossBar)) {
+            if (!shownPlayers.contains(player.uniqueId)) {
+                shownPlayers.add(player.uniqueId)
                 player.showBossBar(bossBar)
             }
         }
@@ -43,7 +45,7 @@ class GameTimerScheduler(
         val newColor = when {
             progress < 0.2f -> BossBar.Color.RED
             progress < 0.5f -> BossBar.Color.YELLOW
-            else -> BossBar.Color.WHITE
+            else -> BossBar.Color.BLUE
         }
         if (bossBar.color() != newColor) {
             bossBar.color(newColor)

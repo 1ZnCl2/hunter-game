@@ -2,13 +2,14 @@ package hunter.papermc.testplugin.services
 
 import hunter.papermc.testplugin.components.GamePhase
 import org.bukkit.Bukkit
+import org.bukkit.scheduler.BukkitTask
 
 class GameStateService {
     var phase: GamePhase = GamePhase.WAITING
         private set
 
     private var gameStartTime: Long = 0
-    private var timerTaskId: Int = -1
+    private var timerTask: BukkitTask? = null
 
     companion object {
         const val GAME_DURATION_SECONDS = 2 * 60 * 60
@@ -33,9 +34,9 @@ class GameStateService {
         if (phase != GamePhase.RUNNING) return
         phase = GamePhase.END
 
-        if (timerTaskId != -1) {
-            Bukkit.getScheduler().cancelTask(timerTaskId)
-            timerTaskId = -1
+        if (timerTask != null) {
+            timerTask!!.cancel()
+            timerTask = null
         }
 
         Bukkit.getOnlinePlayers().forEach { player ->
@@ -63,9 +64,9 @@ class GameStateService {
     fun resetGame() {
         phase = GamePhase.WAITING
         gameStartTime = 0
-        if (timerTaskId != -1) {
-            Bukkit.getScheduler().cancelTask(timerTaskId)
-            timerTaskId = -1
+        if (timerTask != null) {
+            timerTask!!.cancel()
+            timerTask = null
         }
         Bukkit.broadcastMessage("§7게임 초기화...")
     }
@@ -92,7 +93,7 @@ class GameStateService {
         return (getElapsedSeconds().toFloat() / GAME_DURATION_SECONDS).coerceIn(0f, 1f)
     }
 
-    fun setTimerTaskId(taskId: Int) {
-        timerTaskId = taskId
+    fun setTimerTask(task: BukkitTask) {
+        timerTask = task
     }
 }

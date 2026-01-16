@@ -80,11 +80,6 @@ class Hunter : JavaPlugin(), Listener {
         val trackingSchedulers = HunterTrackingSchedulers(trackingUsecase)
         trackingSchedulers.runTaskTimer(this, 0L, 20L) // 1초 간격
 
-        // 게임 타이머 스케줄러
-        gameTimerScheduler = GameTimerScheduler(gameStateService, gameControlUsecase)
-        val timerTaskId = gameTimerScheduler.runTaskTimer(this, 0L, 20L).taskId
-        gameStateService.setTimerTaskId(timerTaskId)
-
         // 리스너
         server.pluginManager.registerEvents(
             HunterCraftListener(switchHunterUsecase), this
@@ -104,7 +99,7 @@ class Hunter : JavaPlugin(), Listener {
             TeamListCommand(teamService)
         )
         getCommand("game").setExecutor(
-            GameManageCommand(gameControlUsecase, gamePausingUsecase)
+            GameManageCommand(gameControlUsecase, gamePausingUsecase, gameStateService, gameTimerScheduler, this)
         )
     }
 

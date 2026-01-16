@@ -12,10 +12,8 @@ class HunterTrackingService(
 ) {
     private val trackingPlayers = mutableSetOf<UUID>()
 
-    // 추적 시작 시각 (ms)
     private val trackingStartTimes = mutableMapOf<UUID, Long>()
 
-    // 쿨타임 종료 시각 (ms)
     private val cooldownUntil = mutableMapOf<UUID, Long>()
 
     private val TRACKING_DURATION_MS = 10_000L // 10초
