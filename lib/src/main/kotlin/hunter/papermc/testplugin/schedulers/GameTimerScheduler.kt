@@ -25,13 +25,11 @@ class GameTimerScheduler(
     override fun run() {
         val isCurrentlyRunning = gameStateService.isRunning()
 
-        // 게임이 시작된 경우
         if (isCurrentlyRunning && !wasRunning) {
             wasRunning = true
             shownPlayers.clear()
         }
 
-        // 게임이 종료된 경우
         if (!isCurrentlyRunning && wasRunning) {
             wasRunning = false
             removeBossBar()
@@ -39,21 +37,18 @@ class GameTimerScheduler(
             return
         }
 
-        // 게임이 실행 중이 아니면 아무것도 하지 않음
         if (!isCurrentlyRunning) {
             return
         }
 
-        // 게임 실행 중: 보스바 업데이트
         val remainingSeconds = gameStateService.getRemainingSeconds()
         val progress = gameStateService.getProgress()
         val minutes = remainingSeconds / 60
         val seconds = remainingSeconds % 60
 
         bossBar.progress(progress)
-        bossBar.name(Component.text("§a남은 시간 : %02d:%02d".format(minutes, seconds)))
+        bossBar.name(Component.text("§a남은 시간 : %02d:%02d:%02d".format(minutes / 60, minutes % 60, seconds)))
 
-        // 온라인 플레이어에게 보스바 표시
         Bukkit.getOnlinePlayers().forEach { player ->
             if (!shownPlayers.contains(player.uniqueId)) {
                 shownPlayers.add(player.uniqueId)
@@ -61,7 +56,6 @@ class GameTimerScheduler(
             }
         }
 
-        // 색상 변경
         val newColor = when {
             progress < 0.2f -> BossBar.Color.RED
             progress < 0.5f -> BossBar.Color.YELLOW
@@ -71,7 +65,6 @@ class GameTimerScheduler(
             bossBar.color(newColor)
         }
 
-        // 시간 경고 메시지
         when (remainingSeconds) {
             600L -> Bukkit.broadcastMessage("§e게임 종료까지 10분 남았습니다!")
             300L -> Bukkit.broadcastMessage("§e게임 종료까지 5분 남았습니다!")
@@ -94,5 +87,13 @@ class GameTimerScheduler(
         Bukkit.getOnlinePlayers().forEach { player ->
             player.hideBossBar(bossBar)
         }
+    }
+
+    fun addPlayer(player: org.bukkit.entity.Player) {
+        player.showBossBar(bossBar)
+    }
+
+    fun removePlayer(player: org.bukkit.entity.Player) {
+        player.hideBossBar(bossBar)
     }
 }
